@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { UnitProvider } from './context/UnitContext';
+import WeatherDisplay from './components/WeatherDisplay';
+import './App.css';
+import { getLocation } from './util/GetLocation';
+import { useState, useEffect } from 'react';
+import { Location } from './types';
+import ToggleUnit from './components/ToggleUnit';
+export default function App() {
+  const [location, setLocation] = useState<Location | null>(null);
 
-function App() {
-  const [count, setCount] = useState(0)
+  useEffect(() => {
+    getLocation().then(setLocation);
+  }, []);
+
+  if (!location) return (
+    <div className='flex justify-center items-center h-screen text-5xl font-bold'>
+      <p>Loading...</p>
+    </div>
+  );
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <UnitProvider>
+      <main className='flex flex-col gap-8 items-center max-h-screen'>
+        <header className='flex flex-col items-center'>
+          <h1 className='text-5xl font-bold'>Weather Dashboard</h1>
+          <hr className='w-full border-t-2 border-black mt-4' />
+          <ToggleUnit />
+        </header>
+        <WeatherDisplay
+          lat={location.coords.latitude}
+          lon={location.coords.longitude}
+        />
+      </main>
+    </UnitProvider>
+  );
 }
-
-export default App
